@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>度假套餐 - 悠然假日酒店</title>
+  <style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif; background: #f5f3ef; color: #333; -webkit-font-smoothing: antialiased; }
+.page-wrapper { max-width: 480px; margin: 0 auto; padding-bottom: 80px; background: #f5f3ef; min-height: 100vh; position: relative; }
+.hero-carousel { position: relative; width: 100%; aspect-ratio: 16/9; overflow: hidden; background: #e8e4de; }
+.carousel-container { width: 100%; height: 100%; position: relative; }
+.carousel-slide { position: absolute; top:0; left:0; width:100%; height:100%; opacity:0; transition: opacity 0.5s ease; }
+.carousel-slide.active { opacity: 1; }
+.carousel-slide img { width:100%; height:100%; object-fit:cover; }
+.slide-tag { position:absolute; bottom:16px; left:16px; background:rgba(0,0,0,0.45); color:#fff; font-size:12px; padding:4px 12px; border-radius:20px; backdrop-filter:blur(4px); }
+.carousel-dots { position:absolute; bottom:16px; right:56px; display:flex; gap:6px; }
+.carousel-dots .dot { width:6px; height:6px; border-radius:50%; background:rgba(255,255,255,0.5); transition:all 0.3s; }
+.carousel-dots .dot.active { width:18px; border-radius:3px; background:#fff; }
+.carousel-counter { position:absolute; bottom:16px; right:16px; background:rgba(0,0,0,0.45); color:#fff; font-size:11px; padding:3px 10px; border-radius:12px; backdrop-filter:blur(4px); }
+.gallery-btn { position:absolute; bottom:16px; left:16px; background:rgba(0,0,0,0.45); color:#fff; font-size:11px; padding:5px 10px; border-radius:12px; backdrop-filter:blur(4px); display:flex; align-items:center; gap:5px; cursor:pointer; -webkit-tap-highlight-color:transparent; }
+.gallery-btn:active { background:rgba(0,0,0,0.65); }
+.package-name-bar { background:#fff; padding:18px 16px 14px; border-bottom:1px solid #f0ede8; }
+.package-title { font-size:19px; font-weight:700; color:#1a1a1a; line-height:1.3; }
+.package-subtitle { font-size:13px; color:#999; margin-top:4px; }
+.value-compare-bar { position: static; background: #fff; border-bottom: 1px solid #f0ede8; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.value-compare-bar:active { background: #fdf9f7; }
+.value-compare-inner { display: flex; align-items: center; padding: 10px 16px 9px; }
+.vcb-package { flex: 1; display:flex; flex-direction:column; align-items:flex-start; }
+.vcb-label { font-size:11px; color:#999; line-height:1; margin-bottom:3px; }
+.vcb-price-row { display:flex; align-items:baseline; gap:1px; }
+.vcb-currency { font-size:13px; font-weight:700; color:#e8401c; }
+.vcb-price { font-size:28px; font-weight:800; color:#e8401c; line-height:1; }
+.vcb-middle { display: flex; flex-direction: column; align-items: center; padding: 0 16px; gap: 5px; }
+.vcb-divider-line { width:1px; height:26px; background:#ece9e4; }
+.vcb-save-badge { display: inline-flex; align-items: center; background: linear-gradient(135deg, #ff6b35, #e8401c); color: #fff; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; white-space: nowrap; letter-spacing: 0.3px; }
+.vcb-original { flex:1; display:flex; flex-direction:column; align-items:flex-end; }
+.vcb-original-label { font-size:11px; color:#bbb; line-height:1; margin-bottom:3px; }
+.vcb-original-price { font-size:18px; font-weight:500; color:#ccc; text-decoration:line-through; line-height:1; }
+.stock-tip { display: flex; align-items: center; gap: 6px; padding: 7px 16px; background: #fff8f5; border-bottom: 1px solid #f5efe9; font-size: 12px; color: #c0533a; }
+.stock-dot { width: 6px; height: 6px; border-radius: 50%; background: #e8401c; flex-shrink: 0; animation: blink 1.4s ease-in-out infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+.stock-tip strong { font-weight: 700; }
+.package-content { margin:12px; }
+.section-title { display:flex; align-items:center; gap:6px; font-size:18px; font-weight:700; color:#2d2d2d; margin-bottom:14px; padding-left:4px; }
+.title-icon { font-size:20px; }
+.package-items { display:flex; flex-direction:column; gap:10px; }
+.package-item { background:#fff; border-radius:14px; overflow:hidden; box-shadow:0 2px 10px rgba(0,0,0,0.04); cursor:pointer; transition:box-shadow 0.2s; }
+.package-item:active { box-shadow:0 1px 4px rgba(0,0,0,0.08); }
+.item-header { display:flex; align-items:center; padding:16px; gap:12px; }
+.item-icon { font-size:28px; width:44px; height:44px; background:#faf8f5; border-radius:12px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.item-info { flex:1; min-width:0; }
+.item-info h3 { font-size:15px; font-weight:600; color:#2d2d2d; }
+.item-brief { font-size:12px; color:#999; margin-top:3px; }
+.item-arrow { font-size:18px; color:#ccc; transition:transform 0.3s; flex-shrink:0; }
+.package-item.expanded .item-arrow { transform:rotate(90deg); color:#999; }
+.item-detail { max-height:0; overflow:hidden; transition:max-height 0.4s ease, opacity 0.3s ease; opacity:0; padding:0 16px; background:#faf8f5; }
+.package-item.expanded .item-detail { max-height:600px; opacity:1; padding:14px 16px; border-top:1px solid #f0ede8; }
+.package-item.expanded { box-shadow:0 4px 16px rgba(0,0,0,0.08); }
+.item-detail ul { list-style:none; padding:0; display:flex; flex-direction:column; gap:8px; }
+.item-detail-img { width:100%; height:160px; object-fit:cover; border-radius:10px; margin-bottom:12px; display:block; }
+.item-detail li { font-size:13px; color:#666; padding:4px 0 4px 14px; position:relative; line-height:1.6; }
+.item-detail li::before { content:""; position:absolute; left:0; top:11px; width:5px; height:5px; background:#d4a574; border-radius:50%; }
+.price-detail-entry { display:flex; align-items:center; justify-content:space-between; padding:13px 16px; margin-top:10px; background:#fff; border-radius:14px; font-size:14px; color:#555; cursor:pointer; box-shadow:0 2px 10px rgba(0,0,0,0.04); }
+.price-detail-entry:active { background:#f8f5f2; }
+.entry-arrow { color:#ccc; font-size:18px; }
+.hotel-intro { margin:12px; margin-top:24px; }
+.hotel-features-section { margin-bottom:20px; }
+.features-grid { display:flex; gap:8px; }
+.feature-card { flex:1; border-radius:12px; overflow:hidden; position:relative; aspect-ratio:3/4; box-shadow:0 2px 10px rgba(0,0,0,0.08); }
+.feature-card img { width:100%; height:100%; object-fit:cover; }
+.feature-label { position:absolute; bottom:0; left:0; right:0; padding:24px 8px 8px; background:linear-gradient(transparent,rgba(0,0,0,0.6)); display:flex; flex-direction:column; }
+.feature-name { font-size:12px; font-weight:600; color:#fff; line-height:1.3; }
+.facilities-section { margin-bottom:20px; }
+.facilities-list { display:flex; flex-direction:column; gap:10px; }
+.facility-card { position:relative; border-radius:14px; overflow:hidden; width:100%; aspect-ratio:16/9; box-shadow:0 2px 12px rgba(0,0,0,0.08); }
+.facility-card img { width:100%; height:100%; object-fit:cover; }
+.facility-overlay { position:absolute; bottom:0; left:0; right:0; padding:40px 16px 14px; background:linear-gradient(transparent,rgba(0,0,0,0.55)); display:flex; flex-direction:column; }
+.facility-name { font-size:15px; font-weight:700; color:#fff; line-height:1.3; }
+.facility-desc { font-size:12px; color:rgba(255,255,255,0.85); margin-top:3px; line-height:1.4; }
+.sub-title { font-size:15px; font-weight:600; color:#2d2d2d; margin-bottom:12px; }
+.reviews-section { background:#fff; border-radius:14px; padding:16px; margin-bottom:14px; box-shadow:0 2px 10px rgba(0,0,0,0.04); }
+.review-cards { display:flex; flex-direction:column; gap:14px; }
+.review-card { background:#faf8f5; border-radius:12px; padding:14px; }
+.review-header { display:flex; align-items:center; gap:8px; margin-bottom:8px; }
+.reviewer { font-size:13px; font-weight:600; color:#2d2d2d; }
+.review-child { font-size:11px; color:#999; background:#fff; padding:2px 8px; border-radius:10px; }
+.review-text { font-size:13px; color:#555; line-height:1.7; font-style:italic; }
+.review-date { display:block; margin-top:8px; font-size:11px; color:#bbb; }
+.traffic-section { background:#fff; border-radius:14px; padding:16px; margin-bottom:14px; box-shadow:0 2px 10px rgba(0,0,0,0.04); }
+.traffic-list { display:flex; flex-direction:column; gap:12px; }
+.traffic-item { display:flex; align-items:center; gap:10px; }
+.traffic-icon { font-size:20px; flex-shrink:0; }
+.traffic-text { font-size:13px; color:#555; line-height:1.5; }
+.notice-section { background:#fff; border-radius:14px; padding:16px; margin-bottom:14px; box-shadow:0 2px 10px rgba(0,0,0,0.04); }
+.notice-list { display:flex; flex-direction:column; gap:10px; }
+.notice-item { display:flex; justify-content:space-between; align-items:center; padding-bottom:10px; border-bottom:1px solid #f5f3ef; }
+.notice-item:last-child { border-bottom:none; padding-bottom:0; }
+.notice-label { font-size:13px; color:#999; flex-shrink:0; }
+.notice-value { font-size:13px; color:#333; text-align:right; }
+.buy-bar { position:fixed; bottom:0; left:0; right:0; width:100%; max-width:480px; margin:0 auto; background:#fff; padding:10px 16px; display:flex; align-items:center; justify-content:space-between; box-shadow:0 -4px 20px rgba(0,0,0,0.08); z-index:100; }
+.buy-info { display:flex; align-items:baseline; gap:6px; }
+.buy-original { font-size:13px; color:#bbb; text-decoration:line-through; }
+.buy-price { font-size:26px; font-weight:800; color:#ff4d4f; }
+.buy-save { font-size:11px; color:#ff4d4f; background:#fff1f0; padding:2px 6px; border-radius:4px; font-weight:600; }
+.buy-btn { background:linear-gradient(135deg,#d4a574,#c4956a); color:#fff; border:none; padding:12px 36px; border-radius:25px; font-size:16px; font-weight:600; cursor:pointer; letter-spacing:1px; transition:transform 0.2s,box-shadow 0.2s; }
+.buy-btn:active { transform:scale(0.96); box-shadow:0 2px 8px rgba(196,149,106,0.4); }
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .buy-bar { padding-bottom: calc(10px + env(safe-area-inset-bottom)); }
+  .page-wrapper { padding-bottom: calc(80px + env(safe-area-inset-bottom)); }
+}
+.related-section { margin: 24px 0 0; }
+.related-scroll { display:flex; gap:10px; padding:0 16px 4px; overflow-x:auto; scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch; scrollbar-width:none; }
+.related-scroll::-webkit-scrollbar { display:none; }
+.related-card { flex-shrink: 0; width: 220px; background: #fff; border-radius: 14px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.06); scroll-snap-align: start; cursor: pointer; }
+.related-card:active { opacity: 0.85; }
+.related-card-img { width:100%; height:110px; object-fit:cover; display:block; }
+.related-card-img-wrap { position:relative; }
+.related-room-badge { position:absolute; top:8px; left:8px; background:rgba(0,0,0,0.5); color:#fff; font-size:10px; padding:2px 7px; border-radius:10px; backdrop-filter:blur(3px); }
+.related-card-body { padding: 10px 12px 13px; }
+.related-card-title { font-size:13px; font-weight:600; color:#2d2d2d; line-height:1.4; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+.related-diff { margin-top:8px; display:flex; flex-direction:column; gap:4px; }
+.diff-row { display:flex; align-items:flex-start; gap:5px; font-size:11px; color:#777; line-height:1.4; }
+.diff-label { color:#bbb; flex-shrink:0; }
+.diff-up { color:#d4380d; font-weight:600; }
+.diff-down { color:#389e0d; font-weight:600; }
+.diff-same { color:#999; }
+.related-card-price { margin-top:9px; display:flex; align-items:baseline; gap:4px; border-top:1px solid #f5f2ef; padding-top:9px; }
+.related-price-main { font-size:16px; font-weight:700; color:#e8401c; }
+.related-price-unit { font-size:11px; color:#999; }
+.related-price-diff { font-size:11px; font-weight:600; margin-left:auto; }
+.price-diff-up { color:#d4380d; }
+.price-diff-down { color:#389e0d; }
+.modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:1000; align-items:flex-end; }
+.modal-overlay.active { display:flex; }
+.modal-sheet { width:100%; max-width:480px; margin:0 auto; background:#fff; border-radius:20px 20px 0 0; overflow:hidden; animation:slideUp 0.3s ease; }
+@keyframes slideUp { from { transform:translateY(100%); } to { transform:translateY(0); } }
+.modal-header { display:flex; align-items:center; justify-content:space-between; padding:18px 20px 14px; border-bottom:1px solid #f2f0ed; }
+.modal-title { font-size:16px; font-weight:600; color:#2d2d2d; }
+.modal-close { font-size:16px; color:#999; cursor:pointer; padding:4px; }
+.modal-body { padding:16px 20px 32px; }
+.price-detail-row { display:flex; justify-content:space-between; align-items:center; padding:10px 0; font-size:14px; color:#555; }
+.price-detail-divider { height:1px; background:#f2f0ed; margin:6px 0; }
+.detail-price { color:#333; }
+.total-row .detail-name { color:#999; font-size:13px; }
+.total-row .original { color:#999; text-decoration:line-through; font-size:13px; }
+.save-row-modal .highlight { color:#e8845a; font-weight:500; }
+.final-row .detail-name { font-size:15px; font-weight:600; color:#2d2d2d; }
+.final-row .final { font-size:20px; font-weight:700; color:#e8845a; }
+.discount-tip { font-size:12px; color:#aaa; margin-top:12px; text-align:center; }
+  </style>
+</head>
+<body>
+<div class="page-wrapper">
+
+  <section class="hero-carousel">
+    <div class="carousel-container" id="carousel">
+      <div class="carousel-slide">
+        <img src="https://s3plus-bj02.vip.sankuai.com/openclaw-bucket/hotel-package/hero1.jpg" alt="民族风木屋客房">
+        <span class="slide-tag">藏在林间的梦幻客房</span>
+      </div>
+      <div class="carousel-slide active">
+        <img src="https://s3plus-bj02.vip.sankuai.com/openclaw-bucket/hotel-package/hero2.jpg" alt="酒店环境">
+        <span class="slide-tag">山水之间，自在度假</span>
+      </div>
+      <div class="carousel-slide">
+        <img src="https://s3plus-bj02.vip.sankuai.com/openclaw-bucket/hotel-package/hero3.jpg" alt="酒店环境">
+        <span class="slide-tag">远离城市，回归自然</span>
+      </div>
+      <div class="carousel-slide">
+        <img src="https://s3plus-bj02.vip.sankuai.com/openclaw-bucket/hotel-package/hero4.jpg" alt="酒店环境">
+        <span class="slide-tag">每一刻，都是风景</span>
+      </div>
+    </div>
+    <div class="carousel-dots" id="carouselDots">
+      <span class="dot"></span><span class="dot active"></span><span class="dot"></span><span class="dot"></span>
+    </div>
+    <div class="carousel-counter" id="carouselCounter">2/4</div>
+    <div class="gallery-btn">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect>
+        <rect x="3" y="14" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect>
+      </svg>
+      <span>全部图片</span>
+    </div>
+  </section>
+
+  <section class="package-name-bar">
+    <h1 class="package-title">悠然假日酒店 · 亲子度假套餐</h1>
+    <p class="package-subtitle">住宿 + 早餐 + 午餐 + 亲子活动 一价全包</p>
+  </section>
+
+  <div class="value-compare-bar" id="valueCompareBar">
+    <div class="value-compare-inner">
+      <div class="vcb-package">
+        <span class="vcb-label">套餐合计价</span>
+        <div class="vcb-price-row">
+          <span class="vcb-currency">¥</span>
+          <span class="vcb-price">699</span>
+        </div>
+      </div>
+      <div class="vcb-middle">
+        <div class="vcb-divider-line"></div>
+        <span class="vcb-save-badge">省 ¥365</span>
+      </div>
+      <div class="vcb-original">
+        <span class="vcb-original-label">单独购买 <span style="color:#e8845a;font-size:11px;">明细 ›</span></span>
+        <span class="vcb-original-price">¥1,064</span>
+      </div>
+    </div>
+  </div>
+
+  <section class="package-content">
+    <h2 class="section-title">
+      <span class="title-icon">🎁</span>
+      套餐内容
+    </h2>
+    <div class="package-items">
+      <div class="package-item">
+        <div class="item-header">
+          <div class="item-icon">🛏️</div>
+          <div class="item-info">
+            <h3>豪华大床房 + 2份早餐</h3>
+            <p class="item-brief">34平方米，1张1.8米大床，2人入住</p>
+          </div>
+          <div class="item-arrow">›</div>
+        </div>
+        <div class="item-detail">
+          <img class="item-detail-img" src="https://s3plus-bj02.vip.sankuai.com/openclaw-bucket/hotel-package/hero1.jpg" alt="豪华大床房">
+          <ul>
+            <li>房间面积：34平方米</li>
+            <li>床型：2m×2m 豪华大床</li>
+            <li>楼层：8-15层市景房</li>
+            <li>设施：独立浴缸、智能马桶、55寸智能电视</li>
+            <li>入住时间：15:00后 / 退房：12:00前</li>
+            <li>可加床（+100元/晚）</li>
+          </ul>
+        </div>
+      </div>
+      <div class="package-item">
+        <div class="item-header">
+          <div class="item-icon">🥐</div>
+          <div class="item-info">
+            <h3>精致双人早餐</h3>
+            <p class="item-brief">2份 · 中西自助 · 7:00-10:00</p>
+          </div>
+          <div class="item-arrow">›</div>
+        </div>
+        <div class="item-detail">
+          <img class="item-detail-img" src="https://s3plus-bj02.vip.sankuai.com/openclaw-bucket/hotel-package/hero3.jpg" alt="精致双人早餐">
+          <ul>
+            <li>用餐地点：1楼全日制餐厅</li>
+            <li>供应时间：7:00-10:00</li>
+            <li>餐食类型：中西式自助早餐</li>
+            <li>包含：现煮面档、煎蛋档、粥品、面包甜点、水果、饮品等</li>
+            <li>儿童1.2米以下免费，1.2-1.4米半价</li>
+          </ul>
+        </div>
+      </div>
+      <div class="package-item">
+        <div class="item-header">
+          <div class="item-icon">🍽️</div>
+          <div class="item-info">
+            <h3>双人自助午餐</h3>
+            <p class="item-brief">2位 · 海鲜自助 · 11:30-14:00</p>
+          </div>
+          <div class="item-arrow">›</div>
+        </div>
+        <div class="item-detail">
+          <img class="item-detail-img" src="https://s3plus-bj02.vip.sankuai.com/openclaw-bucket/buffet.jpg" alt="双人自助午餐">
+          <ul>
+            <li>用餐地点：2楼观景餐厅</li>
+            <li>供应时间：11:30-14:00</li>
+            <li>餐食类型：海鲜主题自助</li>
+            <li>特色：现开生蚝、波士顿龙虾、帝王蟹腿</li>
+            <li>含软饮无限畅饮，酒水另计</li>
+            <li>需提前1天预约</li>
+          </ul>
+        </div>
+      </div>
+      <div class="package-item">
+        <div class="item-header">
+          <div class="item-icon">🎨</div>
+          <div class="item-info">
+            <h3>亲子DIY活动</h3>
+            <p class="item-brief">1次 · 手工体验 · 约60分钟</p>
+          </div>
+          <div class="item-arrow">›</div>
+        </div>
+        <div class="item-detail">
+          <img class="item-detail-img" src="https://s3plus-bj02.vip.sankuai.com/openclaw-bucket/hotel-package/feature2.png" alt="亲子DIY活动">
+          <ul>
+            <li>活动地点：3楼亲子乐园</li>
+            <li>开放时间：9:00-11:30 / 14:00-17:00</li>
+            <li>活动内容：烘焙饼干/彩绘陶艺/手工皂（三选一）</li>
+            <li>适合年龄：3-12岁儿童</li>
+            <li>包含材料费，成品可带走</li>
+            <li>需提前预约时段</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="price-detail-entry" id="openPriceDetail">
+      <span>查看价格明细</span>
+      <span class="entry-arrow">›</span>
+    </div>
+  </section>
+
+  <!-- 优惠明细弹窗 -->
+  <div class="modal-overlay" id="discountModal">
+    <div class="modal-sheet">
+      <div class="modal-header">
+        <span class="modal-title">优惠明细</span>
+        <span class="modal-close" id="closeDiscountModal">✕</span>
+      </div>
+      <div class="modal-body">
+        <div class="price-detail-row">
+          <span class="detail-name">限时套餐折扣</span>
+          <span class="detail-price" style="color:#e8845a;">-¥30</span>
+        </div>
+        <div class="price-detail-row">
+          <span class="detail-name">新用户专享优惠</span>
+          <span class="detail-price" style="color:#e8845a;">-¥10</span>
+        </div>
+        <div class="price-detail-row">
+          <span class="detail-name">平台满减券</span>
+          <span class="detail-price" style="color:#e8845a;">-¥10</span>
+        </div>
+        <div class="price-detail-divider"></div>
+        <div class="price-detail-row final-row">
+          <span class="detail-name">合计优惠</span>
+          <span class="detail-price final">-¥50</span>
+        </div>
+        <p class="discount-tip">优惠已自动叠加，无需额外操作</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 价格明细弹窗 -->
+  <div class="modal-overlay" id="priceModal">
+    <div class="modal-sheet">
+      <div class="modal-header">
+        <span class="modal-title">价格明细</span>
+        <span class="modal-close" id="closePriceModal">✕</span>
+      </div>
+      <div class="modal-body">
+        <div class="price-detail-row">
+          <span class="detail-name">豪华大床房 × 1晚</span>
+          <span class="detail-price">¥580</span>
+        </div>
+        <div class="price-detail-row">
+          <span class="detail-name">精致双人早餐 × 2份</span>
+          <span class="detail-price">¥118</span>
+        </div>
+        <div class="price-detail-row">
+          <span class="detail-name">双人自助午餐 × 2位</span>
+          <span class="detail-price">¥268</span>
+        </div>
+        <div class="price-detail-row">
+          <span class="detail-name">亲子DIY活动 × 1次</span>
+          <span class="detail-price">¥98</span>
+        </div>
+        <div class="price-detail-divider"></div>
+        <div class="price-detail-row total-row">
+          <span class="detail-name">单独购买合计</span>
+          <span class="detail-price original">¥1,064</span>
+        </div>
+        <div class="price-detail-row save-row-modal">
+          <span class="detail-name highlight">套餐优惠</span>
+          <span class="detail-price highlight">-¥365</span>
+        </div>
+        <div class="price-detail-row final-row">
+          <span class="detail-name">套餐价</span>
+          <span class="detail-price final">¥699</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 酒店介绍 -->
+  <section class="hotel-intro">
+    <h2 class="section-title">
+      <span class="title-icon">🏨</span>
+      酒店介绍
+    </h2>
+    <div class="hotel-features-section">
+      <h3 class="sub-title">🌟 酒店特色</h3>
+      <div class="features-grid">
+        <div class="feature-card">
+          <img src="https://s3plus-bj02.vip.sankuai.com/openclaw-bucket/hotel-package/feature1.png" alt="森林萌宠木屋">
+          <div class="feature-label"><span class="feature-name">森林萌宠木屋</span></div>
+        </div>
+        <div class="feature-card">
+          <img src="https://s3plus-bj02.vip.sankuai.com/openclaw-bucket/hotel-package/feature2.png" alt="小熊猫生态乐园">
+          <div class="feature-label"><span class="feature-name">小熊猫生态乐园</span></div>
+        </div>
+        <div class="feature-card">
+          <img src="https://s3plus-bj02.vip.sankuai.com/openclaw-bucket/hotel-package/feature3.png" alt="亲子科普研学">
+          <div class="feature-label"><span class="feature-name">亲子科普研学</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="facilities-section">
+      <h3 class="sub-title">🏨 设施介绍</h3>
+      <div class="facilities-list">
+        <div class="facility-card">
+          <img src="https://s3plus-bj02.vip.sankuai.com/openclaw-bucket/hotel-package/facility0.jpg" alt="森林秘境度假地">
+          <div class="facility-overlay">
+            <span class="facility-name">森林秘境度假地</span>
+            <span class="facility-desc">隐于热带雨林深处，推窗即见绿意，自然与奢华完美融合</span>
+          </div>
+        </div>
+        <div class="facility-card">
+          <img src="https://s3plus-bj02.vip.sankuai.com/openclaw-bucket/hotel-package/feature1.png" alt="森林萌宠木屋">
+          <div class="facility-overlay">
+            <span class="facility-name">森林萌宠木屋</span>
+            <span class="facility-desc">独栋原木别墅，推窗见林海，与萌宠近距离互动</span>
+          </div>
+        </div>
+        <div class="facility-card">
+          <img src="https://s3plus-bj02.vip.sankuai.com/openclaw-bucket/2.jpg" alt="户外山景">
+          <div class="facility-overlay">
+            <span class="facility-name">户外山景</span>
+            <span class="facility-desc">背靠青山，晨闻云雾缭绕，瑜伽平台远眺心旷神怡</span>
+          </div>
+        </div>
+        <div class="facility-card">
+          <img src="https://s3plus-bj02.vip.sankuai.com/openclaw-bucket/buffet.jpg" alt="山景餐厅">
+          <div class="facility-overlay">
+            <span class="facility-name">山景餐厅</span>
+            <span class="facility-desc">普洱特色美食、生态食材，中西结合自助早餐</span>
+          </div>
+        </div>
+        <div class="facility-card">
+          <img src="https://s3plus-bj02.vip.sankuai.com/openclaw-bucket/3.jpg" alt="无边泳池">
+          <div class="facility-overlay">
+            <span class="facility-name">无边泳池</span>
+            <span class="facility-desc">坐拥山林美景，恒温泳池全年开放，畅游于天地之间</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 同人数套餐推荐 -->
+  <section class="related-section hotel-intro">
+    <h2 class="section-title">
+      <span class="title-icon">🏷️</span>
+      同等人数·其他套餐
+    </h2>
+    <div class="related-scroll">
+      <div class="related-card">
+        <div class="related-card-img-wrap">
+          <img class="related-card-img" src="https://s3plus-bj02.vip.sankuai.com/openclaw-bucket/hotel-package/hero3.jpg" alt="双人早餐套餐">
+          <span class="related-room-badge">豪华大床房 · 2人</span>
+        </div>
+        <div class="related-card-body">
+          <div class="related-card-title">双人早餐套餐</div>
+          <div class="related-diff">
+            <div class="diff-row"><span class="diff-label">房型</span><span class="diff-same">同房型</span></div>
+            <div class="diff-row"><span class="diff-label">套餐</span><span class="diff-down">早餐×2（无午餐/活动）</span></div>
+          </div>
+          <div class="related-card-price">
+            <span class="related-price-main">¥498</span>
+            <span class="related-price-unit">/晚</span>
+            <span class="related-price-diff price-diff-down">比当前少¥201</span>
+          </div>
+        </div>
+      </div>
+      <div class="related-card">
+        <div class="related-card-img-wrap">
+          <img class="related-card-img" src="https://s3plus-bj02.vip.sankuai.com/openclaw-bucket/hotel-package/feature1.png" alt="萌宠亲子套餐">
+          <span class="related-room-badge">豪华大床房 · 2人</span>
+        </div>
+        <div class="related-card-body">
+          <div class="related-card-title">萌宠亲子套餐</div>
+          <div class="related-diff">
+            <div class="diff-row"><span class="diff-label">房型</span><span class="diff-same">同房型</span></div>
+            <div class="diff-row"><span class="diff-label">套餐</span><span class="diff-same">早餐×2 + 萌宠互动（无午餐）</span></div>
+          </div>
+          <div class="related-card-price">
+            <span class="related-price-main">¥659</span>
+            <span class="related-price-unit">/晚</span>
+            <span class="related-price-diff price-diff-down">比当前少¥40</span>
+          </div>
+        </div>
+      </div>
+      <div class="related-card">
+        <div class="related-card-img-wrap">
+          <img class="related-card-img" src="https://s3plus-bj02.vip.sankuai.com/openclaw-bucket/buffet.jpg" alt="豪华套房亲子度假套餐">
+          <span class="related-room-badge">豪华景观套房 · 2人</span>
+        </div>
+        <div class="related-card-body">
+          <div class="related-card-title">亲子度假套餐</div>
+          <div class="related-diff">
+            <div class="diff-row"><span class="diff-label">房型</span><span class="diff-up">升级景观套房（+50㎡）</span></div>
+            <div class="diff-row"><span class="diff-label">套餐</span><span class="diff-same">早餐×2 + 午餐×2 + DIY</span></div>
+          </div>
+          <div class="related-card-price">
+            <span class="related-price-main">¥999</span>
+            <span class="related-price-unit">/晚</span>
+            <span class="related-price-diff price-diff-up">比当前多¥300</span>
+          </div>
+        </div>
+      </div>
+      <div class="related-card">
+        <div class="related-card-img-wrap">
+          <img class="related-card-img" src="https://s3plus-bj02.vip.sankuai.com/openclaw-bucket/hotel-package/feature3.png" alt="海鲜双餐度假套餐">
+          <span class="related-room-badge">豪华大床房 · 2人</span>
+        </div>
+        <div class="related-card-body">
+          <div class="related-card-title">海鲜双餐度假套餐</div>
+          <div class="related-diff">
+            <div class="diff-row"><span class="diff-label">房型</span><span class="diff-same">同房型</span></div>
+            <div class="diff-row"><span class="diff-label">套餐</span><span class="diff-up">早餐×2 + 午餐×2 + 晚餐×2</span></div>
+          </div>
+          <div class="related-card-price">
+            <span class="related-price-main">¥1,099</span>
+            <span class="related-price-unit">/晚</span>
+            <span class="related-price-diff price-diff-up">比当前多¥400</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<footer class="buy-bar">
+  <div class="buy-info">
+    <span class="buy-original">¥1,064</span>
+    <span class="buy-price">¥699</span>
+    <span class="buy-save">省¥365</span>
+  </div>
+  <button class="buy-btn">立即预订</button>
+</footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+
+  // 轮播
+  (function() {
+    var slides = document.querySelectorAll('.carousel-slide');
+    var dots = document.querySelectorAll('.carousel-dots .dot');
+    var counter = document.getElementById('carouselCounter');
+    var current = 1;
+    var timer = setInterval(next, 3000);
+
+    function go(n) {
+      slides[current].classList.remove('active');
+      dots[current].classList.remove('active');
+      current = (n + slides.length) % slides.length;
+      slides[current].classList.add('active');
+      dots[current].classList.add('active');
+      counter.textContent = (current + 1) + '/' + slides.length;
+    }
+    function next() { go(current + 1); }
+
+    dots.forEach(function(d, i) {
+      d.addEventListener('click', function() {
+        clearInterval(timer);
+        go(i);
+        timer = setInterval(next, 3000);
+      });
+    });
+  })();
+
+  // 套餐展开/收起
+  document.querySelectorAll('.package-item').forEach(function(item) {
+    item.querySelector('.item-header').addEventListener('click', function() {
+      item.classList.toggle('expanded');
+    });
+  });
+
+  // 弹窗
+  function openModal(id) { document.getElementById(id).classList.add('active'); }
+  function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+  document.getElementById('closeDiscountModal').addEventListener('click', function() { closeModal('discountModal'); });
+  document.getElementById('openPriceDetail').addEventListener('click', function() { openModal('priceModal'); });
+  document.getElementById('valueCompareBar').addEventListener('click', function() { openModal('priceModal'); });
+  document.getElementById('closePriceModal').addEventListener('click', function() { closeModal('priceModal'); });
+
+  // 点击遮罩关闭
+  document.querySelectorAll('.modal-overlay').forEach(function(overlay) {
+    overlay.addEventListener('click', function(e) {
+      if (e.target === overlay) overlay.classList.remove('active');
+    });
+  });
+
+});
+</script>
+
+</body>
+</html>
